@@ -37,13 +37,24 @@ class EmployeeService
         return $this->repository->delete($id);
     }
 
+
     public function importEmployees($file)
     {
-        Excel::import(
-            new EmployeesImport(),
-            $file
-        );
+        try {
 
-        return true;
+            Excel::import(
+                new EmployeesImport(),
+                $file
+            );
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+        }
     }
+
 }

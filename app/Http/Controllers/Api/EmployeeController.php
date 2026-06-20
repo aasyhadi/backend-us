@@ -10,6 +10,7 @@ use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\EmployeesExport;
+use App\Imports\EmployeesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\ImportEmployeeRequest;
 
@@ -130,9 +131,7 @@ class EmployeeController extends Controller
         );
     }
 
-    public function import(
-        ImportEmployeeRequest $request
-    )
+    public function import(ImportEmployeeRequest $request)
     {
         $this->employeeService->importEmployees(
             $request->file('file')

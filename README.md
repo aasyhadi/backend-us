@@ -1,29 +1,23 @@
-# HRIS API Laravel
-
-Backend REST API untuk sistem HRIS menggunakan Laravel, MySQL, Sanctum, dan RBAC.
+# HRIS API Laravel 12
 
 ## Features
 
-- Authentication
+- Authentication (Laravel Sanctum)
 - Role Based Access Control
-- Department CRUD
-- Position CRUD
-- Employee CRUD
-- Dashboard API
+- Employee Management
+- Department Management
+- Position Management
+- Search & Filtering
+- Pagination
+- Employee Photo Upload
+- Excel Export
+- API Documentation (Scribe)
+- Feature Testing
 
 ## Tech Stack
 
-- Laravel
+- Laravel 12
+- Sanctum
 - MySQL
-- Laravel Sanctum
-- Postman
-- Navicat
-
-## Installation
-
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan serve
+- Maatwebsite Excel
+- Scribe
