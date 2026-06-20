@@ -1,4 +1,6 @@
-# HRIS API Laravel 12
+# HRIS API Laravel
+
+Backend REST API untuk sistem HRIS menggunakan Laravel, MySQL, Sanctum, dan RBAC.
 
 ## Features
 
@@ -21,3 +23,14 @@
 - MySQL
 - Maatwebsite Excel
 - Scribe
+- Postman
+- Navicat
+
+## Installation
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve
