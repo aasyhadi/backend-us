@@ -1,4 +1,4 @@
-# HRIS API Laravel
+# HRIS API Laravel (Standarisasi Dev US)
 
 Backend REST API untuk sistem HRIS menggunakan Laravel, MySQL, Sanctum, dan RBAC.
 
