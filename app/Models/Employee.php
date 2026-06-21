@@ -33,4 +33,21 @@ class Employee extends Model
     {
         return $this->belongsTo(Position::class);
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(
+            Attendance::class
+        );
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
+    }
 }
