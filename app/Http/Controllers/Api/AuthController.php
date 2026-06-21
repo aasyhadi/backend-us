@@ -7,15 +7,19 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Traits\ApiResponseTrait;
 
 class AuthController extends Controller
 {
+    use ApiResponseTrait;
+
     public function register(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6'
+            'password' => 'required|min:6',
+            'role' => 'nullable|in:admin,hr,employee'
         ]);
 
         $user = User::create([
@@ -27,14 +31,14 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Register successfully',
-            'data' => [
+        return $this->successResponse(
+            'Register successfully',
+            [
                 'user' => $user,
                 'token' => $token
-            ]
-        ], 201);
+            ],
+            201
+        );
     }
 
     public function login(Request $request)
@@ -42,7 +46,6 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-            'role' => 'nullable|in:admin,hr,employee'
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -55,31 +58,29 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login successfully',
-            'data' => [
+        return $this->successResponse(
+            'Login successfully',
+            [
                 'user' => $user,
                 'token' => $token
             ]
-        ]);
+        );
     }
 
     public function me(Request $request)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $request->user()
-        ]);
+        return $this->successResponse(
+            'Current user retrieved successfully',
+            $request->user()
+        );
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logout successfully'
-        ]);
+        return $this->successResponse(
+            'Logout successfully'
+        );
     }
 }

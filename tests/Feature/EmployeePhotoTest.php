@@ -9,6 +9,8 @@ use Laravel\Sanctum\Sanctum;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Department;
+use App\Models\Position;
 
 class EmployeePhotoTest extends TestCase
 {
@@ -24,7 +26,13 @@ class EmployeePhotoTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $employee = Employee::factory()->create();
+        $department = Department::factory()->create();
+        $position = Position::factory()->create();
+
+        $employee = Employee::factory()->create([
+            'department_id' => $department->id,
+            'position_id' => $position->id,
+        ]);
 
         $file = UploadedFile::fake()
             ->image('photo.jpg');

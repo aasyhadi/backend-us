@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLeaveRequestRequest;
 use App\Http\Resources\LeaveRequestResource;
 use App\Services\LeaveRequestService;
+use App\Traits\ApiResponseTrait;
 
 class LeaveRequestController extends Controller
 {
+    use ApiResponseTrait;
+
     public function __construct(
         private LeaveRequestService $service
     ) {}
@@ -17,10 +20,10 @@ class LeaveRequestController extends Controller
     {
         $leaves = $this->service->getAll();
 
-        return response()->json([
-            'success' => true,
-            'data' => LeaveRequestResource::collection($leaves)
-        ]);
+        return $this->successResponse(
+            'Leave requests retrieved successfully',
+            LeaveRequestResource::collection($leaves)
+        );
     }
 
     public function store(
@@ -31,38 +34,36 @@ class LeaveRequestController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave request submitted',
-            'data' => new LeaveRequestResource(
+        return $this->successResponse(
+            'Leave request submitted',
+            new LeaveRequestResource(
                 $leave->load('employee')
-            )
-        ], 201);
+            ),
+            201
+        );
     }
 
     public function approve($id)
     {
         $leave = $this->service->approve($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave approved',
-            'data' => new LeaveRequestResource(
+        return $this->successResponse(
+            'Leave approved',
+            new LeaveRequestResource(
                 $leave->load('employee')
             )
-        ]);
+        );
     }
 
     public function reject($id)
     {
         $leave = $this->service->reject($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave rejected',
-            'data' => new LeaveRequestResource(
+        return $this->successResponse(
+            'Leave rejected',
+            new LeaveRequestResource(
                 $leave->load('employee')
             )
-        ]);
+        );
     }
 }

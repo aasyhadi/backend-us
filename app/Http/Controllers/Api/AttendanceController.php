@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendanceResource;
 use App\Services\AttendanceService;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponseTrait;
 
 class AttendanceController extends Controller
 {
+    use ApiResponseTrait;
+
     public function __construct(
         private AttendanceService $attendanceService
     ) {}
@@ -25,18 +28,20 @@ class AttendanceController extends Controller
                 $request->employee_id
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Check in successfully',
-                'data' => $attendance
-            ], 201);
+            return $this->successResponse(
+                'Check in successfully',
+                new AttendanceResource(
+                    $attendance->load('employee')
+                ),
+                201
+            );
 
         } catch (\Exception $e) {
 
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 400);
+            return $this->errorResponse(
+                $e->getMessage(),
+                400
+            );
 
         }
     }
@@ -48,23 +53,25 @@ class AttendanceController extends Controller
         ]);
 
         try {
+
             $attendance = $this->attendanceService->checkOut(
                 $request->employee_id
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Check out successfully',
-                'data' => new AttendanceResource(
+            return $this->successResponse(
+                'Check out successfully',
+                new AttendanceResource(
                     $attendance->load('employee')
                 )
-            ]);
+            );
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 400);
+
+            return $this->errorResponse(
+                $e->getMessage(),
+                400
+            );
+
         }
     }
 
@@ -72,16 +79,16 @@ class AttendanceController extends Controller
     {
         $attendances = $this->attendanceService->report();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendance report retrieved successfully',
-            'data' => AttendanceResource::collection($attendances),
-            'meta' => [
+        return $this->successResponse(
+            'Attendance report retrieved successfully',
+            AttendanceResource::collection($attendances),
+            200,
+            [
                 'current_page' => $attendances->currentPage(),
                 'last_page' => $attendances->lastPage(),
                 'per_page' => $attendances->perPage(),
                 'total' => $attendances->total(),
             ]
-        ]);
+        );
     }
 }

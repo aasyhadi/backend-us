@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\LeaveRequestController;
 use App\Http\Controllers\Api\PayrollController;
+use App\Http\Controllers\Api\ActivityLogController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -16,6 +17,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin,hr')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/dashboard/analytics', [DashboardController::class, 'analytics']);
+        Route::get('/dashboard/charts', [DashboardController::class, 'charts']);
+        Route::get('/activity-logs', [ActivityLogController::class, 'index']);
 
         Route::get('/employees/export', [EmployeeController::class, 'export']);
         Route::post('/employees/import', [EmployeeController::class, 'import']);

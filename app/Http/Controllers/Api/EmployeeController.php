@@ -8,14 +8,15 @@ use Illuminate\Http\Request;
 use App\Services\EmployeeService;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
-use Illuminate\Support\Facades\Storage;
 use App\Exports\EmployeesExport;
-use App\Imports\EmployeesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\ImportEmployeeRequest;
+use App\Traits\ApiResponseTrait;
 
 class EmployeeController extends Controller
 {
+    use ApiResponseTrait;
+
     private EmployeeService $employeeService;
 
     public function __construct(EmployeeService $employeeService)
@@ -29,17 +30,17 @@ class EmployeeController extends Controller
             $request->all()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee list retrieved successfully',
-            'data' => EmployeeResource::collection($employees),
-            'meta' => [
+        return $this->successResponse(
+            'Employee list retrieved successfully',
+            EmployeeResource::collection($employees),
+            200,
+            [
                 'current_page' => $employees->currentPage(),
                 'last_page' => $employees->lastPage(),
                 'per_page' => $employees->perPage(),
                 'total' => $employees->total(),
             ]
-        ]);
+        );
     }
 
     public function store(StoreEmployeeRequest $request)
@@ -48,13 +49,13 @@ class EmployeeController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee created successfully',
-            'data' => new EmployeeResource(
+        return $this->successResponse(
+            'Employee created successfully',
+            new EmployeeResource(
                 $employee->load(['department', 'position'])
-            )
-        ], 201);
+            ),
+            201
+        );
     }
 
     public function update(UpdateEmployeeRequest $request, $id)
@@ -64,36 +65,33 @@ class EmployeeController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee updated successfully',
-            'data' => new EmployeeResource(
+        return $this->successResponse(
+            'Employee updated successfully',
+            new EmployeeResource(
                 $employee->load(['department', 'position'])
             )
-        ]);
+        );
     }
 
     public function show($id)
     {
         $employee = $this->employeeService->getEmployeeById($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee detail retrieved successfully',
-            'data' => new EmployeeResource(
+        return $this->successResponse(
+            'Employee detail retrieved successfully',
+            new EmployeeResource(
                 $employee->load(['department', 'position'])
             )
-        ]);
+        );
     }
 
     public function destroy($id)
     {
         $this->employeeService->deleteEmployee($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee deleted successfully'
-        ]);
+        return $this->successResponse(
+            'Employee deleted successfully'
+        );
     }
 
     public function uploadPhoto(Request $request, $id)
@@ -112,21 +110,20 @@ class EmployeeController extends Controller
             'photo' => $path
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Photo uploaded successfully',
-            'data' => [
+        return $this->successResponse(
+            'Photo uploaded successfully',
+            [
                 'employee_id' => $employee->id,
                 'photo' => $path,
                 'url' => asset('storage/' . $path)
             ]
-        ]);
+        );
     }
 
     public function export()
     {
         return Excel::download(
-            new EmployeesExport,
+            new EmployeesExport(),
             'employees.xlsx'
         );
     }
@@ -137,10 +134,8 @@ class EmployeeController extends Controller
             $request->file('file')
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Employees imported successfully'
-        ]);
+        return $this->successResponse(
+            'Employees imported successfully'
+        );
     }
-
 }

@@ -6,17 +6,27 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PositionResource;
 use App\Models\Position;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponseTrait;
 
 class PositionController extends Controller
 {
+    use ApiResponseTrait;
+
     public function index()
     {
-        return response()->json([
-            'success' => true,
-            'data' => PositionResource::collection(
-                Position::latest()->paginate(10)
-            )
-        ]);
+        $positions = Position::latest()->paginate(10);
+
+        return $this->successResponse(
+            'Position list retrieved successfully',
+            PositionResource::collection($positions),
+            200,
+            [
+                'current_page' => $positions->currentPage(),
+                'last_page' => $positions->lastPage(),
+                'per_page' => $positions->perPage(),
+                'total' => $positions->total(),
+            ]
+        );
     }
 
     public function store(Request $request)
@@ -27,41 +37,51 @@ class PositionController extends Controller
             'description' => 'nullable'
         ]);
 
-        $position = Position::create($request->all());
+        $position = Position::create(
+            $request->all()
+        );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Position created successfully',
-            'data' => new PositionResource($position)
-        ], 201);
+        return $this->successResponse(
+            'Position created successfully',
+            new PositionResource($position),
+            201
+        );
     }
 
     public function show(Position $position)
     {
-        return response()->json([
-            'success' => true,
-            'data' => new PositionResource($position)
-        ]);
+        return $this->successResponse(
+            'Position detail retrieved successfully',
+            new PositionResource($position)
+        );
     }
 
-    public function update(Request $request, Position $position)
-    {
-        $position->update($request->all());
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Position updated successfully',
-            'data' => new PositionResource($position)
+    public function update(
+        Request $request,
+        Position $position
+    ) {
+        $request->validate([
+            'name' => 'required|max:100',
+            'code' => 'required|max:20|unique:positions,code,' . $position->id,
+            'description' => 'nullable'
         ]);
+
+        $position->update(
+            $request->all()
+        );
+
+        return $this->successResponse(
+            'Position updated successfully',
+            new PositionResource($position)
+        );
     }
 
     public function destroy(Position $position)
     {
         $position->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Position deleted successfully'
-        ]);
+        return $this->successResponse(
+            'Position deleted successfully'
+        );
     }
 }

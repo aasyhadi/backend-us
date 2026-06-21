@@ -8,9 +8,12 @@ use App\Http\Requests\UpdateDepartmentRequest;
 use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
 use App\Services\DepartmentService;
+use App\Traits\ApiResponseTrait;
 
 class DepartmentController extends Controller
 {
+    use ApiResponseTrait;
+
     public function __construct(
         protected DepartmentService $departmentService
     ) {}
@@ -19,37 +22,38 @@ class DepartmentController extends Controller
     {
         $departments = $this->departmentService->getAll();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Department list retrieved successfully',
-            'data' => DepartmentResource::collection($departments),
-            'meta' => [
+        return $this->successResponse(
+            'Department list retrieved successfully',
+            DepartmentResource::collection($departments),
+            200,
+            [
                 'current_page' => $departments->currentPage(),
                 'last_page' => $departments->lastPage(),
                 'per_page' => $departments->perPage(),
                 'total' => $departments->total(),
             ]
-        ]);
+        );
     }
 
     public function store(StoreDepartmentRequest $request)
     {
-        $department = $this->departmentService->create($request->validated());
+        $department = $this->departmentService->create(
+            $request->validated()
+        );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Department created successfully',
-            'data' => new DepartmentResource($department)
-        ], 201);
+        return $this->successResponse(
+            'Department created successfully',
+            new DepartmentResource($department),
+            201
+        );
     }
 
     public function show(Department $department)
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Department detail retrieved successfully',
-            'data' => new DepartmentResource($department)
-        ]);
+        return $this->successResponse(
+            'Department detail retrieved successfully',
+            new DepartmentResource($department)
+        );
     }
 
     public function update(UpdateDepartmentRequest $request, Department $department)
@@ -59,20 +63,18 @@ class DepartmentController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Department updated successfully',
-            'data' => new DepartmentResource($department)
-        ]);
+        return $this->successResponse(
+            'Department updated successfully',
+            new DepartmentResource($department)
+        );
     }
 
     public function destroy(Department $department)
     {
         $this->departmentService->delete($department);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Department deleted successfully'
-        ]);
+        return $this->successResponse(
+            'Department deleted successfully'
+        );
     }
 }
